@@ -1,0 +1,44 @@
+name: Autobuild
+on: 
+  push:
+
+jobs:
+  aarch64_job:
+    runs-on: ubuntu-22.04
+    name: Build on ubuntu22.04 aarch64
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v4
+      - uses: uraimo/run-on-arch-action@v2
+        name: Compile aarch64
+        id: runcmd
+        with:
+          arch: aarch64
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          dockerRunArgs: |
+            --volume "${PWD}:/myproject"
+          shell: /bin/sh
+          install: |
+            apt-get update -q -y
+            apt-get install -q -y git patchelf python3-pip python-is-python3
+          run: |
+            cd /myproject
+
+            python -m pip install --force --no-cache --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Freeze
+            #mkdir custom_cx_freeze
+            #cd custom_cx_freeze
+            #  git clone https://github.com/marcelotduarte/cx_Freeze
+            #  cd cx_Freeze
+            #    python -m pip install --upgrade uv --disable-pip-version-check
+            #    UV_RESOLUTION=highest uv pip install --system --upgrade -r requirements.txt -r requirements-dev.txt -r requirements-doc.txt
+            #    uv pip install --system -e. --no-build-isolation --no-deps --reinstall
+            #  cd ..
+            #cd ..
+            
+            export PATH="/usr/local/bin:$PATH"
+            python -m cx_Freeze --script main.py --target-name=executable
+
+            ./$(find build -name "executable")     
+            cat success.txt
+
