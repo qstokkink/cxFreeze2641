@@ -13,20 +13,22 @@ jobs:
         if: runner.os == 'Linux'
         uses: docker/setup-qemu-action@v3
         with:
+          image: tonistiigi/binfmt:master
           platforms: arm64
       - name: Build wheel
         run: |
-          git clone https://github.com/marcelotduarte/cx_Freeze
-          cd cx_Freeze
-          python -m pip install --upgrade uv --disable-pip-version-check
-          uv venv
-          uv pip install "`grep cibuildwheel requirements-dev.txt`"
-          source .venv/bin/activate
-          export CIBW_BUILD="cp310-manylinux_aarch64"
-          cibuildwheel --output-dir wheelhouse --prerelease-pythons
-          cp wheelhouse/cx_Freeze-7.3.0.dev0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl ../cx_Freeze-7.3.0.dev0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
-          cd ..
-          rm -rf cx_Freeze
+          # Part of test 3
+          #git clone https://github.com/marcelotduarte/cx_Freeze
+          #cd cx_Freeze
+          #python -m pip install --upgrade uv --disable-pip-version-check
+          #uv venv
+          #uv pip install "`grep cibuildwheel requirements-dev.txt`"
+          #source .venv/bin/activate
+          #export CIBW_BUILD="cp310-manylinux_aarch64"
+          #cibuildwheel --output-dir wheelhouse --prerelease-pythons
+          #cp wheelhouse/cx_Freeze-7.3.0.dev0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl ../cx_Freeze-7.3.0.dev0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
+          #cd ..
+          #rm -rf cx_Freeze
       - uses: uraimo/run-on-arch-action@v2
         name: Run on aarch64
         id: runcmd
@@ -40,18 +42,30 @@ jobs:
           install: |
             apt-get update -q -y
             apt-get install -q -y git patchelf python3-pip python-is-python3
+            apt-get install -q -y build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
           run: |
             cd /myproject
 
-            # --- This fails:
+            # --- 1. This fails:
             #python -m pip install --force --no-cache --pre --extra-index-url https://marcelotduarte.github.io/packages/ cx_Freeze
             # ---
-            
-            # --- This fails:
-            python -m pip install cx_Freeze-7.3.0.dev0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
+
+            # --- 2. This fails:
+            #python -m pip install cx_Freeze-7.3.0.dev0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
             # ---
 
-            # --- This works
+            # --- 4. ???
+            curl https://pyenv.run | bash
+            export PATH="$HOME/.pyenv/bin:$PATH"
+            export PYENV_ROOT="$HOME/.pyenv"
+            [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+            eval "$(pyenv init -)"
+            pyenv install 3.10
+            pyenv local 3.10
+            python -m pip install cx_Freeze
+            #
+
+            # --- 3. This works
             #mkdir custom_cx_freeze
             #cd custom_cx_freeze
             #  git clone https://github.com/marcelotduarte/cx_Freeze
