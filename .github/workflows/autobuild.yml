@@ -42,7 +42,7 @@ jobs:
           install: |
             apt-get update -q -y
             apt-get install -q -y git patchelf python3-pip python-is-python3
-            apt-get install -q -y build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+            apt-get install -q -y libc6
           run: |
             cd /myproject
 
@@ -54,15 +54,16 @@ jobs:
             #python -m pip install cx_Freeze-7.3.0.dev0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
             # ---
 
-            # --- 4. ???
-            curl https://pyenv.run | bash
-            export PATH="$HOME/.pyenv/bin:$PATH"
-            export PYENV_ROOT="$HOME/.pyenv"
-            [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-            eval "$(pyenv init -)"
-            pyenv install 3.10
-            pyenv local 3.10
-            python -m pip install cx_Freeze
+            # --- 4. This fails
+            #apt-get install -q -y build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+            #curl https://pyenv.run | bash
+            #export PATH="$HOME/.pyenv/bin:$PATH"
+            #export PYENV_ROOT="$HOME/.pyenv"
+            #[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+            #eval "$(pyenv init -)"
+            #pyenv install 3.10
+            #pyenv local 3.10
+            #python -m pip install cx_Freeze
             #
 
             # --- 3. This works
@@ -76,6 +77,9 @@ jobs:
             #  cd ..
             #cd ..
             # ---
+            
+            # --- 5. ???
+            python -m pip install cx_Freeze
 
             export PATH="/usr/local/bin:$PATH"
             python -m cx_Freeze --script main.py --target-name=executable
