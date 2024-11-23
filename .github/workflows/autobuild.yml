@@ -46,4 +46,4 @@ jobs:
         with:
           name: Build
           path: |
-            build/**/executable
+            build/exe.*/**
