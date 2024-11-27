@@ -27,8 +27,17 @@ jobs:
           shell: /bin/sh
           install: |
             apt-get update -q -y
-            apt-get install -q -y git patchelf python3-pip python-is-python3 libfuse2
+            apt-get install -q -y git patchelf python3-pip python-is-python3 libfuse2 wget
           run: |
+            mkdir -p /root/.local/bin
+            wget -O /root/.local/bin/appimagetool-aarch64.AppImage "https://github.com/AppImage/appimagetool/releases/download/1.9.0/appimagetool-aarch64.AppImage"
+            chmod +x /root/.local/bin/appimagetool-aarch64.AppImage
+            ln -s /root/.local/bin/appimagetool-aarch64.AppImage /root/.local/bin/appimagetool
+            chmod +x /root/.local/bin/appimagetool
+            
+            ARCH=aarch64 /root/.local/bin/appimagetool-aarch64.AppImage --help
+            ARCH=aarch64 /root/.local/bin/appimagetool --help
+            
             cd /myproject
 
             pip install --upgrade pip cx-Freeze
